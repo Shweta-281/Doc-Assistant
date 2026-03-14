@@ -1,0 +1,79 @@
+### 1. Register User
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Shweta",
+  "email": "shweta14@gmail.com",
+  "password": "123456"
+}
+
+### 2. Login User (Run this first to get the token!)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "shweta14@gmail.com",
+  "password": "123456"
+}
+
+> {%
+    // 1. Get the raw text (Token : eyJhbGci...)
+    let bodyText = response.body.toString();
+
+    // 2. Remove the "Token :" part and any extra spaces
+    let cleanToken = bodyText.replace("Token :", "").trim();
+
+    // 3. Save only the JWT string into {{token}}
+    client.global.set("token", cleanToken);
+
+    client.log("✅ Token successfully cleaned and saved!");
+%}
+
+
+### 3. Upload File
+POST http://localhost:8080/api/doc_assistant/upload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="sample.pdf"
+Content-Type: application/pdf
+
+< C:/Users/shweta/sample.pdf
+
+
+### 4. Get All Files (Auto-captures the filename/UUID)
+GET http://localhost:8080/api/doc_assistant/files
+Authorization: Bearer {{token}}
+
+> {%
+    if (response.body && response.body.length > 0) {
+        let lastFile = response.body[response.body.length - 1];
+        let fullUrl = lastFile.fileUrl;
+
+        // Extract filename from path (handles both / and \ separators)
+        let filename = fullUrl.split(/[\\/]/).pop();
+
+        client.global.set("lastUploadedFile", filename);
+        client.log("SUCCESS: Captured Filename -> " + filename);
+    }
+%}
+
+### 5. Download File
+GET http://localhost:8080/api/doc_assistant/download?filePath={{lastUploadedFile}}
+Authorization: Bearer {{token}}
+
+### 6. Extract File Content
+GET http://localhost:8080/api/doc_assistant/extract?fileName={{lastUploadedFile}}
+Authorization: Bearer {{token}}
+
+### 7. AI Prompt
+# @timeout 300
+POST http://localhost:8080/api/doc_assistant/prompt
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "prompt": "What is Spring Boot?"
+}
