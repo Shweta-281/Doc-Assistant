@@ -110,12 +110,41 @@ POST /api/doc_assistant/upload
 ```
 GET /api/doc_assistant/file
 ```
-## Download Uploaded File
+## Download File
 ```
 GET /api/doc_assistant/download
 ```
-## Extract Downloaded File
+## Extract PDF Text
 ```
 GET /api/doc_assistant/extract
 ```
-## 
+## Ask AI Question
+```
+POST /api/doc_assistant/prompt
+```
+### Example Request:
+```
+{
+  "prompt": "What is spring boot?"
+}
+```
+AI response is streamed using **Server-Sent Events (SSE)**
+
+# Installation
+
+## 1. Clone a Repository
+```
+git clone https://github.com/Shweta-281/Doc-Assistant.git
+```
+## 2. Install and Run Ollama
+Start Ollama:
+```
+ollama run llama3.2
+```
+Pull Embedding Model:
+```
+ollama pull nomic-embed-text
+``` 
+## 3. Run PostgreSQL with pgvector
+Using Docker:
+
