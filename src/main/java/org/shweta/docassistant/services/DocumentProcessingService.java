@@ -1,6 +1,7 @@
 package org.shweta.docassistant.services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,19 +14,28 @@ public class DocumentProcessingService {
     private final TextChunkService textChunkService;
     private final EmbeddingService embeddingService;
     private final VectorStoreService vectorStoreService;
+    private final JdbcTemplate jdbcTemplate;
 
     public void processPdf(Long paperId, String fileName) {
-
         String text = pdfService.extractText(fileName);
-
-        List<String> chunks = textChunkService.chunkText(text);
+        String[] chunks = text.split("(?<=\\G.{500})");
 
         for (String chunk : chunks) {
-            // Change from float[] to List<Double> to match EmbeddingService
             List<Double> embedding = embeddingService.createEmbedding(chunk);
 
-            // This call must now accept List<Double>
-            vectorStoreService.saveChunk(chunk, embedding, Math.toIntExact(paperId));
+            // FIX: Convert the List to a String format that Postgres Vector understands
+            String vectorString = embedding.toString();
+
+            jdbcTemplate.update("""
+                INSERT INTO document_chunks(content, embedding, file_name)
+                VALUES (?, CAST(? AS vector), ?)
+                """,
+                    chunk,
+                    vectorString, // Use the String here instead of the List
+                    fileName
+            );
+
+            vectorStoreService.saveChunk(chunk, embedding, Math.toIntExact(paperId), fileName);
         }
     }
 }

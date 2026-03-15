@@ -1,6 +1,7 @@
 package org.shweta.docassistant.services;
 
 import lombok.RequiredArgsConstructor;
+import org.shweta.docassistant.dto.SourceChunk;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatModel;
@@ -24,9 +25,13 @@ public class PromptService {
         List<Double> embedding = embeddingService.createEmbedding(question);
 
         // Search similar chunks from pgvector
-        List<String> chunks = vectorSearchService.searchSimilarChunks(embedding);
+        List<SourceChunk> chunks = vectorSearchService.searchSimilarChunks(embedding);
         // Build context
-        String context = buildContext(chunks);
+        StringBuilder context = new StringBuilder();
+
+        for(SourceChunk chunk : chunks) {
+            context.append(chunk.getContent()).append("\n\n");
+        }
 
         // Create AI prompt
         String finalPrompt = String.format("""
@@ -39,18 +44,6 @@ public class PromptService {
         %s
         """, context, question);
 
-        // 5️⃣ Send to Ollama
         return chatModel.stream(new Prompt(finalPrompt));
-    }
-
-    private String buildContext(List<String> chunks){
-        StringBuilder context = new StringBuilder();
-
-        for(String chunk : chunks){
-            context.append(chunk).append("\n\n");
-        }
-
-        return context.toString();
-
     }
 }

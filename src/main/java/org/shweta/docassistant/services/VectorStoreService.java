@@ -13,16 +13,16 @@ public class VectorStoreService {
     private final JdbcTemplate jdbcTemplate;
 
     // Ensure this parameter is 'Long paperId'
-    public void saveChunk(String content, List<Double> embedding, Integer paperId) {
+    public void saveChunk(String content, List<Double> embedding, Integer paperId, String fileName) {
 
         String vectorString = embedding.toString();
 
         String sql = """
-                INSERT INTO document_chunks (content, embedding, paper_id)
-                VALUES (?, ?::vector, ?)
+                INSERT INTO document_chunks (content, embedding, paper_id, file_name)
+                VALUES (?, ?::vector, ?, ?)
                 """;
 
         // JDBC will correctly map the Long to the integer column
-        jdbcTemplate.update(sql, content, vectorString, paperId);
+        jdbcTemplate.update(sql, content, vectorString, paperId, fileName);
     }
 }

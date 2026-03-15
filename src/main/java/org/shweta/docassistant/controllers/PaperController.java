@@ -5,11 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.shweta.docassistant.dto.PaperInfoDTO;
 import org.shweta.docassistant.services.FileService;
 import org.shweta.docassistant.services.PdfService;
+import org.shweta.docassistant.services.PromptService;
 import org.shweta.docassistant.services.TextChunkService;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -21,6 +24,7 @@ public class PaperController {
 
     private final FileService fileService;
     private final PdfService pdfService;
+    private final PromptService promptService;
     private TextChunkService textChunkService;
 
     @PostMapping("/upload")
@@ -62,4 +66,5 @@ public class PaperController {
 
         return ResponseEntity.ok(chunks);
     }
+
 }

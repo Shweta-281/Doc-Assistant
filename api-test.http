@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "name": "Shweta",
-  "email": "shweta14@gmail.com",
+  "email": "shweta9104@gmail.com",
   "password": "123456"
 }
 
@@ -13,22 +13,30 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "shweta14@gmail.com",
+  "email": "shweta9104@gmail.com",
   "password": "123456"
 }
 
 > {%
-    // 1. Get the raw text (Token : eyJhbGci...)
-    let bodyText = response.body.toString();
+    // Check if response exists
+    if (response.status === 200) {
+        let body = response.body;
 
-    // 2. Remove the "Token :" part and any extra spaces
-    let cleanToken = bodyText.replace("Token :", "").trim();
+        // If API returns JSON like { "token": "..." }
+        let token = body.token;
 
-    // 3. Save only the JWT string into {{token}}
-    client.global.set("token", cleanToken);
+        // If API returns a string starting with "Token :"
+        if (!token && typeof body === 'string') {
+            token = body.replace("Token :", "").trim();
+        }
 
-    client.log("✅ Token successfully cleaned and saved!");
+        client.global.set("token", token);
+        client.log("✅ Token saved: " + token);
+    } else {
+        client.log("❌ Login failed with status: " + response.status);
+    }
 %}
+
 
 
 ### 3. Upload File

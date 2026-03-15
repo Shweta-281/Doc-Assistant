@@ -1,10 +1,12 @@
 package org.shweta.docassistant.services;
 
 import lombok.RequiredArgsConstructor;
+import org.shweta.docassistant.dto.SourceChunk;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
+import com.pgvector.PGvector;
 
 @Service
 @RequiredArgsConstructor
@@ -13,19 +15,18 @@ public class VectorSearchService {
     private final JdbcTemplate jdbcTemplate;
 
     // Use List<Double> to match your updated EmbeddingService
-    public List<String> searchSimilarChunks(List<Double> embedding) {
+    public List<SourceChunk> searchSimilarChunks(List<Double> embedding) {
+        // Convert List<Double> to float array
+        float[] floatArray = new float[embedding.size()];
+        for (int i = 0; i < embedding.size(); i++) {
+            floatArray[i] = embedding.get(i).floatValue();
+        }
 
-        // Convert List<Double> to a PostgreSQL vector string format: [val1,val2,...]
-        String vectorString = embedding.toString().replace(" ", "");
+        String sql = "SELECT content, file_name FROM document_chunks ORDER BY embedding <-> ? LIMIT 3";
 
-        String sql = """
-                SELECT content
-                FROM document_chunks
-                ORDER BY embedding <-> ?::vector
-                LIMIT 3
-                """;
-
-        // Pass the formatted string to the query
-        return jdbcTemplate.queryForList(sql, String.class, vectorString);
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                        new SourceChunk(rs.getString("content"), rs.getString("file_name")),
+                new PGvector(floatArray) // <--- This handles the "vector" type correctly
+        );
     }
 }
