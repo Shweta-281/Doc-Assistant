@@ -1,4 +1,4 @@
-# 📄 AI Document Assistant (RAG System)
+## 📄 AI Document Assistant (RAG System)
 
 An AI-powered backend system that allows users to upload PDF documents and ask questions about them using a Large Language Model.
 
@@ -8,7 +8,7 @@ This project demonstrates a **Retrieval Augmented Generation (RAG)** architectur
 
 ---
 
-# 🚀 Features
+## 🚀 Features
 
 - Upload PDF documents
 - Extract text from uploaded PDFs
@@ -23,7 +23,7 @@ This project demonstrates a **Retrieval Augmented Generation (RAG)** architectur
 
 ---
 
-# 🧠 AI Architecture (RAG)
+## 🧠 AI Architecture (RAG)
 
 This system uses **Retrieval Augmented Generation** to answer questions from documents.
 
@@ -41,7 +41,7 @@ Generate AI Answer
 
 ---
 
-# 🏗 System Architecture
+## 🏗 System Architecture
 
 ```mermaid
 flowchart TD
@@ -70,59 +70,59 @@ LLM --> Answer[Streaming AI Response]
 Answer --> User
 ```
 
-# Tech Stack
+## 🛠 Tech Stack
 
-## Backend
+### Backend
 - Spring Boot
 - Spring AI
 
-## AI Models
+### AI Models
 - Ollama
 - Llama 3 (LLM)
 - nomic-embed-text (embedding model)
 
-## Database
+### Database
 - PostgreSQL
 - pgvector (Vector search extension)
 
-## Document Processing
+### Document Processing
 - Apache PDFBox
 
-## Tool
+### Tool
 - Docker
 - IntelliJ IDEA
 
-# API Endpoints
+## API Endpoints
 
-## Register User
+### Register User
 ```
 POST /api/auth/register
 ```
-## Login User
+### Login User
 ```
 POST /api/auth/login
 ```
-## Upload Document
+### Upload Document
 ```
 POST /api/doc_assistant/upload
 ```
-## Get Uploaded File
+### Get Uploaded File
 ```
 GET /api/doc_assistant/file
 ```
-## Download File
+### Download File
 ```
 GET /api/doc_assistant/download
 ```
-## Extract PDF Text
+### Extract PDF Text
 ```
 GET /api/doc_assistant/extract
 ```
-## Ask AI Question
+### Ask AI Question
 ```
 POST /api/doc_assistant/prompt
 ```
-### Example Request:
+#### Example Request:
 ```
 {
   "prompt": "What is spring boot?"
@@ -130,13 +130,13 @@ POST /api/doc_assistant/prompt
 ```
 AI response is streamed using **Server-Sent Events (SSE)**
 
-# Installation
+## ⚙️ Installation
 
-## 1. Clone a Repository
+### 1. Clone a Repository
 ```
 git clone https://github.com/Shweta-281/Doc-Assistant.git
 ```
-## 2. Install and Run Ollama
+### 2. Install and Run Ollama
 Start Ollama:
 ```
 ollama run llama3.2
@@ -145,6 +145,44 @@ Pull Embedding Model:
 ```
 ollama pull nomic-embed-text
 ``` 
-## 3. Run PostgreSQL with pgvector
+### 3. Run PostgreSQL with pgvector
 Using Docker:
+```
+docker run -d \
+-p 5432:5432 \
+-e POSTGRES_PASSWORD=postgres \
+ankane/pgvector
+```
+Enable extension:
+```
+CREATE EXTENSION vector;
+```
+### 4. Configure Application
+Update ```application.properties```
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/docassistant
+spring.datasource.username=postgres
+spring.datasource.password=postgres
 
+spring.ai.ollama.base-url=http://localhost:11434
+spring.ai.ollama.chat.model=llama3.2
+spring.ai.ollama.embedding.options.model=nomic-embed-text
+```
+### 5. Run the Application
+```
+./mvnw spring-boot:run
+```
+Server runs on:
+```
+http://localhost:8080
+```
+## 🌟 Future Improvements
+- Multi-document intelligent search
+- Document source citations
+- Chat memory
+- Web UI for document chat
+- Hybrid search (keyword + vector)
+- Documenet summarization
+
+## 👨‍💻 Author
+Shweta S.
